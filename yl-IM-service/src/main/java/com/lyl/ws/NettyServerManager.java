@@ -1,6 +1,7 @@
 package com.lyl.ws;
 
 import com.lyl.ws.handler.WebSocketServerInitializer;
+import com.lyl.ws.utils.NacosRegisterUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -21,6 +22,9 @@ public class NettyServerManager {
     @Resource
     private WebSocketServerInitializer webSocketServerInitializer;
 
+    @Resource
+    private NacosRegisterUtil nacosRegisterUtil;
+
     @Value("${yl_IM.netty.server.port}")
     private int port;
 
@@ -38,6 +42,7 @@ public class NettyServerManager {
                     .bind(port)
                     .sync();
             log.info("Netty server started successfully on port {}", port);
+            nacosRegisterUtil.register();
         } catch (InterruptedException e) {
             log.error("Netty server failed to start on port {}: {}", port, e.getMessage());
         }
@@ -45,6 +50,7 @@ public class NettyServerManager {
 
     @PreDestroy
     public void shutdownNettyServer() {
+        nacosRegisterUtil.deregister();
         channelFuture.channel().close();
         worker.shutdownGracefully();
         boss.shutdownGracefully();

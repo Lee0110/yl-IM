@@ -3,18 +3,13 @@ yl_IM:
     server:
       port: 9001
 spring:
-  kafka:
-    bootstrap-servers: localhost:9092
-    consumer:
-      group-id: yl-IM-group
-      auto-offset-reset: earliest
-      enable-auto-commit: false
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-    listener:
-      ack-mode: manual
+  redis:
+    host: localhost
+    port: 6379
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        register-enabled: false # 只用代码注册
 server:
   port: 8081

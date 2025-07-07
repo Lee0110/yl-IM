@@ -5,6 +5,7 @@ import com.lyl.domain.dto.MessageDTO;
 import com.lyl.ws.constant.ChannelAttributeKeyConstant;
 import com.lyl.ws.utils.LocalChannelStoreUtil;
 import com.lyl.ws.utils.MessageSendUtil;
+import com.lyl.ws.utils.RedisUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -25,6 +26,9 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
 
     @Resource
     private MessageSendUtil messageSendUtil;
+
+    @Resource
+    private RedisUtil redisUtil;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame frame) {
@@ -51,6 +55,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         if (userId != null) {
             log.info("用户 {} 断开连接，移除Channel: {}", userId, ctx.channel().id());
             localChannelStoreUtil.removeChannel(userId);
+            redisUtil.removeUserServerMapping(userId);
         } else {
             log.warn("Channel断开连接，但无法获取用户ID: {}", ctx.channel().id());
         }
@@ -64,10 +69,10 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         if (userId != null) {
             log.info("用户 {} 异常断开连接，移除Channel: {}", userId, ctx.channel().id());
             localChannelStoreUtil.removeChannel(userId);
+            redisUtil.removeUserServerMapping(userId);
         } else {
             log.warn("Channel异常断开连接，但无法获取用户ID: {}", ctx.channel().id());
         }
-        localChannelStoreUtil.removeChannel(userId);
         ctx.close();
     }
 }

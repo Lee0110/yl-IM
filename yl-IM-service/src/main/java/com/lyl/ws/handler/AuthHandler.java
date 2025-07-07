@@ -2,6 +2,8 @@ package com.lyl.ws.handler;
 
 import com.lyl.ws.constant.ChannelAttributeKeyConstant;
 import com.lyl.ws.utils.LocalChannelStoreUtil;
+import com.lyl.ws.utils.NacosRegisterUtil;
+import com.lyl.ws.utils.RedisUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -31,6 +33,9 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
 
     @Resource
     private LocalChannelStoreUtil localChannelStoreUtil;
+
+    @Resource
+    private RedisUtil redisUtil;
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
@@ -62,6 +67,9 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
 
                 // 将Channel存储到ChannelStore
                 localChannelStoreUtil.addChannel(userId, ctx.channel());
+
+                // 将用户ID和服务器ID的映射关系存入Redis
+                redisUtil.saveUserServerMapping(userId, NacosRegisterUtil.SERVER_IP_PORT);
 
                 // 认证通过后，移除AuthHandler
                 ctx.pipeline().remove(this);
