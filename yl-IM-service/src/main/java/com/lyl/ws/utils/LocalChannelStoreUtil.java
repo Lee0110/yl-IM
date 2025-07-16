@@ -3,6 +3,7 @@ package com.lyl.ws.utils;
 import io.netty.channel.Channel;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -28,5 +29,9 @@ public class LocalChannelStoreUtil {
         if (channel != null) {
             channelUser.remove(channel);
         }
+    }
+
+    public Set<Long> getAllUserIds() {
+        return userChannel.keySet();
     }
 }

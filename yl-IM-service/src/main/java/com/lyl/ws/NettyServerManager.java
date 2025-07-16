@@ -2,6 +2,7 @@ package com.lyl.ws;
 
 import com.lyl.ws.handler.WebSocketServerInitializer;
 import com.lyl.ws.utils.NacosRegisterUtil;
+import com.lyl.ws.utils.RedisUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -24,6 +25,9 @@ public class NettyServerManager {
 
     @Resource
     private NacosRegisterUtil nacosRegisterUtil;
+
+    @Resource
+    private RedisUtil redisUtil;
 
     @Value("${yl_IM.netty.server.port}")
     private int port;
@@ -51,6 +55,7 @@ public class NettyServerManager {
     @PreDestroy
     public void shutdownNettyServer() {
         nacosRegisterUtil.deregister();
+        redisUtil.clearLocalUserServerMappings();
         channelFuture.channel().close();
         worker.shutdownGracefully();
         boss.shutdownGracefully();

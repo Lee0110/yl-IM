@@ -1,7 +1,6 @@
 package com.lyl.ws.utils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -9,7 +8,9 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -23,6 +24,9 @@ public class RedisUtil {
 
     @Value("${server.port}")
     private Integer serverPort;
+
+    @Resource
+    private LocalChannelStoreUtil localChannelStoreUtil;
 
     /**
      * 存储用户ID与本机服务器IP:HOST的映射
@@ -69,5 +73,15 @@ public class RedisUtil {
         String key = USER_SERVER_KEY_PREFIX + userId;
         redisTemplate.delete(key);
         log.info("删除用户[{}]的服务器映射", userId);
+    }
+
+    /**
+     * 清除所有本地用户与服务器的映射关系
+     */
+    public void clearLocalUserServerMappings() {
+        Set<Long> allUserIdList = localChannelStoreUtil.getAllUserIds();
+        Set<String> needDeleteKeyList = allUserIdList.stream().map(userId -> USER_SERVER_KEY_PREFIX + userId).collect(Collectors.toSet());
+        redisTemplate.delete(needDeleteKeyList);
+        log.info("清除本地用户与服务器的映射关系, 共删除 {} 条, 明细如下：{}", needDeleteKeyList.size(), allUserIdList);
     }
 }
