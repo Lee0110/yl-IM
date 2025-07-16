@@ -19,8 +19,8 @@ public class NacosRegisterUtil {
     @Value("${spring.cloud.nacos.discovery.server-addr}")
     private String nacosAddr;
 
-    @Value("${server.port}")
-    private int serverPort;
+    @Value("${yl_IM.netty.server.port}")
+    private int nettyPort;
 
     private NamingService namingService;
 
@@ -40,10 +40,10 @@ public class NacosRegisterUtil {
             String ip = InetAddress.getLocalHost().getHostAddress();
             Instance instance = new Instance();
             instance.setIp(ip);
-            instance.setPort(serverPort);
-            SERVER_IP_PORT = ip + ":" + serverPort;
+            instance.setPort(nettyPort);
+            SERVER_IP_PORT = ip + ":" + nettyPort;
             namingService.registerInstance(YL_IM_NETTY, instance);
-            log.info("[Nacos] 注册服务: {} {}:{}", YL_IM_NETTY, ip, serverPort);
+            log.info("[Nacos] 注册服务: {} {}:{}", YL_IM_NETTY, ip, nettyPort);
         } catch (NacosException | UnknownHostException e) {
             log.error("[Nacos] 注册服务失败: {}", e.getMessage());
         }
@@ -52,8 +52,8 @@ public class NacosRegisterUtil {
     public void deregister() {
         try {
             String ip = InetAddress.getLocalHost().getHostAddress();
-            namingService.deregisterInstance(YL_IM_NETTY, ip, serverPort);
-            log.info("[Nacos] 注销服务: {} {}:{}", YL_IM_NETTY, ip, serverPort);
+            namingService.deregisterInstance(YL_IM_NETTY, ip, nettyPort);
+            log.info("[Nacos] 注销服务: {} {}:{}", YL_IM_NETTY, ip, nettyPort);
         } catch (NacosException | UnknownHostException e) {
             log.error("[Nacos] 注销服务失败: {}", e.getMessage());
         }

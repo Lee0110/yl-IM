@@ -10,6 +10,8 @@ spring:
     nacos:
       discovery:
         server-addr: localhost:8848
-        register-enabled: false # 只用代码注册
+        register-enabled: true # 启用自动注册
+  application:
+    name: yl-im-service
 server:
   port: 8081
