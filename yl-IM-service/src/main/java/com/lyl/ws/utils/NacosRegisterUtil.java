@@ -22,11 +22,10 @@ public class NacosRegisterUtil {
     @Value("${yl_IM.netty.server.port}")
     private int nettyPort;
 
+    @Value("${yl_IM.netty.server.name}")
+    private String nettyServerName;
+
     private NamingService namingService;
-
-    public static String SERVER_IP_PORT;
-
-    public static final String YL_IM_NETTY = "yl-im-netty";
 
     @PostConstruct
     public void init() throws NacosException {
@@ -41,9 +40,8 @@ public class NacosRegisterUtil {
             Instance instance = new Instance();
             instance.setIp(ip);
             instance.setPort(nettyPort);
-            SERVER_IP_PORT = ip + ":" + nettyPort;
-            namingService.registerInstance(YL_IM_NETTY, instance);
-            log.info("[Nacos] 注册服务: {} {}:{}", YL_IM_NETTY, ip, nettyPort);
+            namingService.registerInstance(nettyServerName, instance);
+            log.info("[Nacos] 注册服务: {} {}:{}", nettyServerName, ip, nettyPort);
         } catch (NacosException | UnknownHostException e) {
             log.error("[Nacos] 注册服务失败: {}", e.getMessage());
         }
@@ -52,11 +50,10 @@ public class NacosRegisterUtil {
     public void deregister() {
         try {
             String ip = InetAddress.getLocalHost().getHostAddress();
-            namingService.deregisterInstance(YL_IM_NETTY, ip, nettyPort);
-            log.info("[Nacos] 注销服务: {} {}:{}", YL_IM_NETTY, ip, nettyPort);
+            namingService.deregisterInstance(nettyServerName, ip, nettyPort);
+            log.info("[Nacos] 注销服务: {} {}:{}", nettyServerName, ip, nettyPort);
         } catch (NacosException | UnknownHostException e) {
             log.error("[Nacos] 注销服务失败: {}", e.getMessage());
         }
     }
 }
-

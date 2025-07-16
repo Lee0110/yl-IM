@@ -2,10 +2,13 @@ package com.lyl.ws.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -18,16 +21,28 @@ public class RedisUtil {
     @Resource
     private RedisTemplate<String, String> redisTemplate;
 
+    @Value("${server.port}")
+    private Integer serverPort;
+
     /**
-     * 存储用户ID与服务器ID的映射
+     * 存储用户ID与本机服务器IP:HOST的映射
      *
      * @param userId   用户ID
-     * @param serverId 服务器ID (IP:端口)
      */
-    public void saveUserServerMapping(Long userId, String serverId) {
+    public void saveUserServerMapping(Long userId) {
+        String ip;
+        try {
+            ip = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            log.error("获取本机IP地址失败", e);
+            throw new RuntimeException("获取本机IP地址失败", e);
+        }
+
+        String ipPort = ip + ":" + serverPort;
+
         String key = USER_SERVER_KEY_PREFIX + userId;
-        redisTemplate.opsForValue().set(key, serverId, USER_SERVER_EXPIRE_TIME, TimeUnit.SECONDS);
-        log.info("保存用户[{}]与服务器[{}]的映射关系", userId, serverId);
+        redisTemplate.opsForValue().set(key, ipPort, USER_SERVER_EXPIRE_TIME, TimeUnit.SECONDS);
+        log.info("保存用户[{}]与服务器[{}]的映射关系", userId, ipPort);
     }
 
     /**
@@ -38,11 +53,11 @@ public class RedisUtil {
      */
     public String getUserServerMapping(Long userId) {
         String key = USER_SERVER_KEY_PREFIX + userId;
-        String serverId = redisTemplate.opsForValue().get(key);
-        if (serverId != null) {
-            log.info("获取到用户[{}]的服务器映射[{}]", userId, serverId);
+        String ipPort = redisTemplate.opsForValue().get(key);
+        if (ipPort != null) {
+            log.info("获取到用户[{}]的服务器映射[{}]", userId, ipPort);
         }
-        return serverId;
+        return ipPort;
     }
 
     /**

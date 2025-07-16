@@ -2,6 +2,7 @@ yl_IM:
   netty:
     server:
       port: 9001
+      name: yl-im-netty
 spring:
   redis:
     host: localhost

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -16,30 +17,35 @@ public class RemoteMessageService {
     private final RestTemplate restTemplate;
 
     public RemoteMessageService() {
-        this.restTemplate = new RestTemplate();
+        // 创建带超时配置的RestTemplate
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(5000); // 连接超时5秒
+        factory.setReadTimeout(10000);   // 读取超时10秒
+        this.restTemplate = new RestTemplate(factory);
     }
 
     /**
      * 通过HTTP调用远程服务发送消息
      *
-     * @param serverId 目标服务器ID (IP:端口)
+     * @param serverIpPort 目标服务器ID (IP:端口)
      * @param messageDTO 消息内容
      * @return 是否发送成功
      */
-    public boolean sendMessageToRemoteServer(String serverId, MessageDTO messageDTO) {
+    public boolean sendMessageToRemoteServer(String serverIpPort, MessageDTO messageDTO) {
         try {
-            String url = "http://" + serverId + "/message/send";
+            String url = "http://" + serverIpPort + "/message/send";
+            log.info("准备发送远程消息，URL: {}", url);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            HttpEntity<String> request = new HttpEntity<>(JSONObject.toJSONString(messageDTO), headers);
+            HttpEntity<MessageDTO> request = new HttpEntity<>(messageDTO, headers);
 
-            String response = restTemplate.postForObject(url, request, String.class);
-            log.info("远程消息转发成功，服务器: {}，响应: {}", serverId, response);
-            return true;
+            Boolean response = restTemplate.postForObject(url, request, Boolean.class);
+            log.info("远程消息转发成功，服务器: {}，响应: {}", serverIpPort, response);
+            return Boolean.TRUE.equals(response);
         } catch (Exception e) {
-            log.error("远程消息转发失败，服务器: {}，错误: {}", serverId, e.getMessage());
+            log.error("远程消息转发失败，服务器: {}，错误: {}", serverIpPort, e.getMessage(), e);
             return false;
         }
     }

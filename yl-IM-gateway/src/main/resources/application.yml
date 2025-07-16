@@ -1,0 +1,30 @@
+server:
+  port: 10001
+
+spring:
+  application:
+    name: yl-im-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true  # 添加这行，将服务名转为小写
+      routes:
+        # WebSocket 路由配置 - 处理 /ws 请求
+        - id: yl-im-websocket
+          uri: lb://yl-im-netty
+          predicates:
+            - Path=/ws/**
+          filters:
+            - StripPrefix=0  # WebSocket 路径不需要去除前缀
+        # 普通 HTTP 请求路由配置
+        - id: yl-im-server
+          uri: lb://yl-im-service
+          predicates:
+            - Path=/yl-im-server/**
+          filters:
+            - StripPrefix=1

@@ -68,8 +68,8 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
                 // 将Channel存储到ChannelStore
                 localChannelStoreUtil.addChannel(userId, ctx.channel());
 
-                // 将用户ID和服务器ID的映射关系存入Redis
-                redisUtil.saveUserServerMapping(userId, NacosRegisterUtil.SERVER_IP_PORT);
+                // 将用户ID和本机服务器IP:HOST的映射关系存入Redis
+                redisUtil.saveUserServerMapping(userId);
 
                 // 认证通过后，移除AuthHandler
                 ctx.pipeline().remove(this);

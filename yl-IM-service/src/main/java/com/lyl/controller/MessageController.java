@@ -20,6 +20,7 @@ public class MessageController {
 
     @PostMapping("send")
     public boolean sendMessage(@RequestBody MessageDTO messageDTO) {
+        log.info("接口收到消息发送请求: {}", messageDTO);
         messageSendUtil.sendMessageToUser(messageDTO.getReceiverId(), messageDTO, false);
         return true;
     }
