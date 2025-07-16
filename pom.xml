@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.18</version>
+        <version>2.2.6.RELEASE</version>
     </parent>
 
     <groupId>com.lyl</groupId>
@@ -19,6 +19,7 @@
         <module>yl-IM-common</module>
         <module>yl-IM-core</module>
         <module>yl-IM-service</module>
+        <module>yl-IM-gateway</module>
     </modules>
 
     <properties>
@@ -31,12 +32,37 @@
         <commons.io.version>2.14.0</commons.io.version>
         <netty.version>4.1.92.Final</netty.version>
         <fastjson.version>2.0.53</fastjson.version>
-        <spring-cloud.version>2021.0.8</spring-cloud.version>
-        <spring-cloud-alibaba.version>2021.0.5.0</spring-cloud-alibaba.version>
+        <spring-cloud.version>Hoxton.SR12</spring-cloud.version>
+        <spring-cloud-alibaba.version>2.2.7.RELEASE</spring-cloud-alibaba.version>
+        <spring.boot.version>2.3.12.RELEASE</spring.boot.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-parent</artifactId>
+                <version>${spring.boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Spring Cloud 依赖 -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            
+            <!-- Spring Cloud Alibaba 依赖 -->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${spring-cloud-alibaba.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <!-- 阿里数据库连接池 -->
             <dependency>
                 <groupId>com.alibaba</groupId>
@@ -81,13 +107,18 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>

@@ -39,13 +39,14 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        log.info("AuthHandler收到事件: {}", evt.getClass().getSimpleName());
+        
         if (evt instanceof WebSocketServerProtocolHandler.HandshakeComplete) {
             WebSocketServerProtocolHandler.HandshakeComplete handshakeComplete =
                     (WebSocketServerProtocolHandler.HandshakeComplete) evt;
 
             HttpHeaders headers = handshakeComplete.requestHeaders();
             String userIdStr = headers.get("userId");
-
             if (StringUtils.isBlank(userIdStr)) {
                 log.warn("Handshake failed: userId header is missing");
                 ctx.close();
@@ -71,6 +72,8 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
                 // 将用户ID和服务器ID的映射关系存入Redis
                 redisUtil.saveUserServerMapping(userId, NacosRegisterUtil.SERVER_IP_PORT);
 
+                log.info("用户 {} WebSocket连接认证成功", userId);
+                
                 // 认证通过后，移除AuthHandler
                 ctx.pipeline().remove(this);
 

@@ -36,12 +36,14 @@ public class NettyServerManager {
     @EventListener(ApplicationReadyEvent.class)
     public void startNettyServer() {
         try {
+            log.info("开始启动Netty服务器，端口: {}", port);
             channelFuture = bootstrap.group(boss, worker)
                     .channelFactory(NioServerSocketChannel::new)
                     .childHandler(webSocketServerInitializer)
                     .bind(port)
                     .sync();
             log.info("Netty server started successfully on port {}", port);
+            log.info("Netty服务器监听地址: {}", channelFuture.channel().localAddress());
             nacosRegisterUtil.register();
         } catch (InterruptedException e) {
             log.error("Netty server failed to start on port {}: {}", port, e.getMessage());

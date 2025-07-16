@@ -6,8 +6,8 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-public class YlIMApplication {
+public class YlIMGatewayApplication {
     public static void main(String[] args) {
-        SpringApplication.run(YlIMApplication.class, args);
+        SpringApplication.run(YlIMGatewayApplication.class, args);
     }
 }
