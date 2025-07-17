@@ -2,7 +2,6 @@ package com.lyl.ws.handler;
 
 import com.lyl.ws.constant.ChannelAttributeKeyConstant;
 import com.lyl.ws.utils.LocalChannelStoreUtil;
-import com.lyl.ws.utils.NacosRegisterUtil;
 import com.lyl.ws.utils.RedisUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
