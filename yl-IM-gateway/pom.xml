@@ -41,6 +41,12 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </dependency>
+        <!-- 添加对 common 模块的依赖 -->
+        <dependency>
+            <groupId>com.lyl</groupId>
+            <artifactId>yl-IM-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 </project>

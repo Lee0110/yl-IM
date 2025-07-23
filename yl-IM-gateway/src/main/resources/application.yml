@@ -28,3 +28,6 @@ spring:
             - Path=/yl-im-server/**
           filters:
             - StripPrefix=1
+    # 负载均衡配置
+    loadbalancer:
+      configurations: local
