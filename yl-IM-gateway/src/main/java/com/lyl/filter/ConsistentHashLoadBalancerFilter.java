@@ -78,7 +78,7 @@ public class ConsistentHashLoadBalancerFilter extends AbstractGatewayFilterFacto
         }
 
         // 然后尝试从请求头中获取
-        String userIdFromHeader = request.getHeaders().getFirst("X-User-Id");
+        String userIdFromHeader = request.getHeaders().getFirst("userId");
         if (userIdFromHeader != null && !userIdFromHeader.isEmpty()) {
             return userIdFromHeader;
         }
