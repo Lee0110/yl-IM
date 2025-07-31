@@ -12,14 +12,18 @@ spring:
       discovery:
         locator:
           enabled: true
-          lower-case-service-id: true  # 添加这行，将服务名转为小写
+          lower-case-service-id: true  # 将服务名转为小写
       routes:
         # WebSocket 路由配置 - 处理 /ws 请求
         - id: yl-im-websocket
-          uri: lb://yl-im-netty
+          uri: lb:ws://yl-im-netty
           predicates:
             - Path=/ws/**
           filters:
+            - name: ConsistentHashLoadBalancerFilter
+              args:
+                serviceName: yl-im-netty
+                userIdParam: userId
             - StripPrefix=0  # WebSocket 路径不需要去除前缀
         # 普通 HTTP 请求路由配置
         - id: yl-im-server
@@ -28,6 +32,3 @@ spring:
             - Path=/yl-im-server/**
           filters:
             - StripPrefix=1
-    # 负载均衡配置
-    loadbalancer:
-      configurations: local

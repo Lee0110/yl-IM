@@ -1,6 +1,7 @@
 package com.lyl.filter;
 
 import com.lyl.utils.GuavaConsistentHashUtil;
+import lombok.Data;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -96,24 +97,9 @@ public class ConsistentHashLoadBalancerFilter extends AbstractGatewayFilterFacto
     /**
      * 配置类
      */
+    @Data
     public static class Config {
         private String serviceName = "yl-im-netty";
         private String userIdParam = "userId";
-
-        public String getServiceName() {
-            return serviceName;
-        }
-
-        public void setServiceName(String serviceName) {
-            this.serviceName = serviceName;
-        }
-
-        public String getUserIdParam() {
-            return userIdParam;
-        }
-
-        public void setUserIdParam(String userIdParam) {
-            this.userIdParam = userIdParam;
-        }
     }
 }
