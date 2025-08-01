@@ -37,8 +37,9 @@ public class WebSocketServerInitializer extends ChannelInitializer<SocketChannel
         pipeline.addLast(HandlerNameConstant.IDLE_STATE, new IdleStateHandler(0, 0, 30)); // 30秒无心跳则断开
         
         // WebSocket协议处理器
-        pipeline.addLast(HandlerNameConstant.WEB_SOCKET_PROTOCOL_SERVER, new WebSocketServerProtocolHandler("/ws"));
-        
+        pipeline.addLast(HandlerNameConstant.WEB_SOCKET_PROTOCOL_SERVER,
+                new WebSocketServerProtocolHandler("/ws", null, true, 65536, false, true));
+
         // 认证处理器，必须放在业务处理器之前
         pipeline.addLast(HandlerNameConstant.AUTH_HANDLER, authHandler);
 

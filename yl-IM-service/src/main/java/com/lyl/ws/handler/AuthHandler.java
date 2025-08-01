@@ -6,7 +6,7 @@ import com.lyl.ws.utils.RedisUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @ChannelHandler.Sharable
@@ -28,6 +29,11 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
         authorizedUserIds.add(1002L);
         authorizedUserIds.add(1003L);
         authorizedUserIds.add(1004L);
+        authorizedUserIds.add(1005L);
+        authorizedUserIds.add(1006L);
+        authorizedUserIds.add(1007L);
+        authorizedUserIds.add(1008L);
+        authorizedUserIds.add(1009L);
     }
 
     @Resource
@@ -42,11 +48,23 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
             WebSocketServerProtocolHandler.HandshakeComplete handshakeComplete =
                     (WebSocketServerProtocolHandler.HandshakeComplete) evt;
 
-            HttpHeaders headers = handshakeComplete.requestHeaders();
-            String userIdStr = headers.get("userId");
+            // 从URI查询参数中获取userId
+            String uri = handshakeComplete.requestUri();
+            String userIdStr = null;
+
+            // 解析URL参数
+            try {
+                QueryStringDecoder decoder = new QueryStringDecoder(uri);
+                List<String> userIdParams = decoder.parameters().get("userId");
+                if (userIdParams != null && !userIdParams.isEmpty()) {
+                    userIdStr = userIdParams.get(0);
+                }
+            } catch (Exception e) {
+                log.error("Failed to parse userId from URI: {}", uri, e);
+            }
 
             if (StringUtils.isBlank(userIdStr)) {
-                log.warn("Handshake failed: userId header is missing");
+                log.warn("Handshake failed: userId parameter is missing from URL");
                 ctx.close();
                 return;
             }

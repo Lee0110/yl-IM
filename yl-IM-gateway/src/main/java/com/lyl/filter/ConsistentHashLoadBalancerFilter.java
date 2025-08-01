@@ -41,27 +41,42 @@ public class ConsistentHashLoadBalancerFilter extends AbstractGatewayFilterFacto
             // 从请求中获取用户ID
             String userId = extractUserId(exchange.getRequest(), userIdParam);
             if (userId == null || userId.isEmpty()) {
-                // 如果没有用户ID，使用默认的负载均衡
-                return chain.filter(exchange);
+                // 如果没有用户ID，抛出异常
+                return Mono.error(new RuntimeException("未能获取用户ID，无法进行路由"));
             }
 
             // 获取服务实例列表
             List<ServiceInstance> instances = discoveryClient.getInstances(serviceName);
             if (instances == null || instances.isEmpty()) {
-                return chain.filter(exchange);
+                // 如果没有可用服务实例，抛出异常
+                return Mono.error(new RuntimeException("没有可用的服务实例：" + serviceName));
             }
 
             // 使用一致性哈希选择服务器
             List<String> instanceUrls = instances.stream()
-                    .map(instance -> instance.getScheme() + "://" + instance.getHost() + ":" + instance.getPort())
+                    .map(instance -> instance.getHost() + ":" + instance.getPort())
                     .collect(Collectors.toList());
 
             String selectedServerUrl = GuavaConsistentHashUtil.selectServer(userId, instanceUrls);
 
             if (selectedServerUrl != null) {
-                // 更新请求的URI
-                URI newUri = URI.create(selectedServerUrl);
+                // 获取原始请求的URI和查询参数
+                ServerHttpRequest request = exchange.getRequest();
+                URI originalUri = request.getURI();
+                String query = originalUri.getRawQuery();
+
+                // 构造新URI时保留原始查询参数
+                URI newUri;
+                if (query != null && !query.isEmpty()) {
+                    newUri = URI.create("ws://" + selectedServerUrl + originalUri.getPath() + "?" + query);
+                } else {
+                    newUri = URI.create("ws://" + selectedServerUrl + originalUri.getPath());
+                }
+
                 exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, newUri);
+            } else {
+                // 如果没有选择出服务器，抛出异常
+                return Mono.error(new RuntimeException("一致性哈希算法未能选择出合适的服务器"));
             }
 
             return chain.filter(exchange);
