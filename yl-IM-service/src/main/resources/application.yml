@@ -1,7 +1,7 @@
 yl_IM:
   netty:
     server:
-      port: 9001
+      port: 9081
       name: yl-im-netty
 spring:
   redis:

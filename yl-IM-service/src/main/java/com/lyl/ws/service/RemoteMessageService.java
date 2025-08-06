@@ -1,6 +1,5 @@
 package com.lyl.ws.service;
 
-import com.alibaba.fastjson2.JSONObject;
 import com.lyl.domain.dto.MessageDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;

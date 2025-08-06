@@ -4,11 +4,13 @@ import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
+import com.lyl.utils.ConsistentHashUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Properties;
@@ -16,23 +18,14 @@ import java.util.Properties;
 @Slf4j
 @Component
 public class NacosRegisterUtil {
-    @Value("${spring.cloud.nacos.discovery.server-addr}")
-    private String nacosAddr;
-
     @Value("${yl_IM.netty.server.port}")
     private int nettyPort;
 
     @Value("${yl_IM.netty.server.name}")
     private String nettyServerName;
 
+    @Resource
     private NamingService namingService;
-
-    @PostConstruct
-    public void init() throws NacosException {
-        Properties properties = new Properties();
-        properties.setProperty("serverAddr", nacosAddr);
-        namingService = NacosFactory.createNamingService(properties);
-    }
 
     public void register() {
         try {

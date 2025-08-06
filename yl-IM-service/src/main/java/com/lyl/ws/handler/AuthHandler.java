@@ -2,7 +2,6 @@ package com.lyl.ws.handler;
 
 import com.lyl.ws.constant.ChannelAttributeKeyConstant;
 import com.lyl.ws.utils.LocalChannelStoreUtil;
-import com.lyl.ws.utils.RedisUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -38,9 +37,6 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
 
     @Resource
     private LocalChannelStoreUtil localChannelStoreUtil;
-
-    @Resource
-    private RedisUtil redisUtil;
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
@@ -85,11 +81,10 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
                 // 将Channel存储到ChannelStore
                 localChannelStoreUtil.addChannel(userId, ctx.channel());
 
-                // 将用户ID和本机服务器IP:HOST的映射关系存入Redis
-                redisUtil.saveUserServerMapping(userId);
-
                 // 认证通过后，移除AuthHandler
                 ctx.pipeline().remove(this);
+
+                log.info("用户 {} 连接到服务器，Channel ID: {}", userId, ctx.channel().id());
 
             } catch (NumberFormatException e) {
                 log.warn("Handshake failed: invalid userId format {}", userIdStr, e);

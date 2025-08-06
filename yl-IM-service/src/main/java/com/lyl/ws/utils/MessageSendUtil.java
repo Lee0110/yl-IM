@@ -2,6 +2,7 @@ package com.lyl.ws.utils;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.lyl.domain.dto.MessageDTO;
+import com.lyl.utils.ConsistentHashUtil;
 import com.lyl.ws.service.RemoteMessageService;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -19,7 +20,7 @@ public class MessageSendUtil {
     private LocalChannelStoreUtil localChannelStoreUtil;
 
     @Resource
-    private RedisUtil redisUtil;
+    private ConsistentHashUtil consistentHashUtil;
 
     @Resource
     private RemoteMessageService remoteMessageService;
@@ -48,8 +49,9 @@ public class MessageSendUtil {
             log.info("本地发送消息给用户 {}：{}", userId, jsonString);
         } else {
             if (isRedirect) {
-                // 用户不在本机，尝试通过Redis查找用户所在的服务器
-                String serverIpPort = redisUtil.getUserServerMapping(userId);
+                // 用户不在本机，使用一致性哈希工具找到用户所在的服务器
+                String serverIpPort = consistentHashUtil.selectSpringServer(String.valueOf(userId));
+                log.info("一致性哈希选择的服务器: {}", serverIpPort);
 
                 if (StringUtils.isNotEmpty(serverIpPort)) {
                     // 找到用户所在服务器，进行远程调用

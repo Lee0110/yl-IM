@@ -1,41 +1,38 @@
 package com.lyl.filter;
 
-import com.lyl.utils.GuavaConsistentHashUtil;
+import com.lyl.utils.ConsistentHashUtil;
 import lombok.Data;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
-import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.Resource;
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 基于一致性哈希的负载均衡过滤器
  * 用于WebSocket连接的服务器选择
  */
+@Slf4j
 @Component
 public class ConsistentHashLoadBalancerFilter extends AbstractGatewayFilterFactory<ConsistentHashLoadBalancerFilter.Config> {
 
-    private final DiscoveryClient discoveryClient;
+    @Resource
+    private ConsistentHashUtil consistentHashUtil;
 
-    public ConsistentHashLoadBalancerFilter(DiscoveryClient discoveryClient) {
+    // 添加构造函数
+    public ConsistentHashLoadBalancerFilter() {
         super(Config.class);
-        this.discoveryClient = discoveryClient;
     }
 
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
-            String serviceName = config.getServiceName();
             String userIdParam = config.getUserIdParam();
 
             // 从请求中获取用户ID
@@ -45,19 +42,8 @@ public class ConsistentHashLoadBalancerFilter extends AbstractGatewayFilterFacto
                 return Mono.error(new RuntimeException("未能获取用户ID，无法进行路由"));
             }
 
-            // 获取服务实例列表
-            List<ServiceInstance> instances = discoveryClient.getInstances(serviceName);
-            if (instances == null || instances.isEmpty()) {
-                // 如果没有可用服务实例，抛出异常
-                return Mono.error(new RuntimeException("没有可用的服务实例：" + serviceName));
-            }
-
-            // 使用一致性哈希选择服务器
-            List<String> instanceUrls = instances.stream()
-                    .map(instance -> instance.getHost() + ":" + instance.getPort())
-                    .collect(Collectors.toList());
-
-            String selectedServerUrl = GuavaConsistentHashUtil.selectServer(userId, instanceUrls);
+            String selectedServerUrl = consistentHashUtil.selectNettyServer(userId);
+            log.info("一致性哈希选择的服务器: {}", selectedServerUrl);
 
             if (selectedServerUrl != null) {
                 // 获取原始请求的URI和查询参数
