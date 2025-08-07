@@ -13,12 +13,12 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @Component
-public class WebsocketGatewayFilterFactory extends AbstractGatewayFilterFactory<Object> {
+public class CustomWebsocketGatewayFilterFactory extends AbstractGatewayFilterFactory<Object> {
 
     @Resource
     private CustomWebsocketGatewayFilter customWebsocketGatewayFilter;
 
-    public WebsocketGatewayFilterFactory() {
+    public CustomWebsocketGatewayFilterFactory() {
         super(Object.class);
     }
 

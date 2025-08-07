@@ -24,7 +24,7 @@ spring:
           predicates:
             - Path=/ws/**
           filters:
-            - name: ConsistentHashLoadBalancerFilter
+            - name: CustomWebsocket
             - StripPrefix=0  # WebSocket 路径不需要去除前缀
         # 普通 HTTP 请求路由配置
         - id: yl-im-server
