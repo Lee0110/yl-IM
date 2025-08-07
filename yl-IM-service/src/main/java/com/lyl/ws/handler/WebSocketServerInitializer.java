@@ -1,6 +1,6 @@
 package com.lyl.ws.handler;
 
-import com.lyl.ws.constant.HandlerNameConstant;
+import com.lyl.constant.HandlerNameConstant;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;

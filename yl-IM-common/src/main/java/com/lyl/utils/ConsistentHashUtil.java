@@ -1,5 +1,8 @@
 package com.lyl.utils;
 
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.TypeReference;
+import com.lyl.constant.RedisKeyConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
@@ -20,7 +23,7 @@ import java.util.stream.Collectors;
 public class ConsistentHashUtil {
 
     @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplate<String, String> redisTemplate;
 
     @Resource
     private DiscoveryClient discoveryClient;
@@ -30,9 +33,6 @@ public class ConsistentHashUtil {
 
     // 虚拟节点数量 - 派蒙调优的黄金比例
     private static final int VIRTUAL_NODES = 160;
-
-    // Redis缓存前缀
-    private static final String REDIS_CACHE_KEY = "consistent_hash:ring";
 
     // Redis缓存过期时间（分钟）
     private static final int REDIS_CACHE_EXPIRE_MINUTES = 10;
@@ -49,10 +49,11 @@ public class ConsistentHashUtil {
         }
         // 从缓存拿到一致性哈希环
         SortedMap<Long, String> hashRing = null;
-        Object cachedValue = redisTemplate.opsForValue().get(REDIS_CACHE_KEY);
+        String cachedValue = redisTemplate.opsForValue().get(RedisKeyConstant.CONSISTENT_HASH_RING);
         if (cachedValue != null) {
             try {
-                hashRing = (SortedMap<Long, String>) cachedValue;
+                hashRing = JSONObject.parseObject(cachedValue, new TypeReference<SortedMap<Long, String>>() {
+                });
             } catch (Exception e) {
                 log.error("从Redis获取哈希环数据转换失败", e);
             }
@@ -77,8 +78,8 @@ public class ConsistentHashUtil {
             // 存储到Redis
             try {
                 redisTemplate.opsForValue().set(
-                        REDIS_CACHE_KEY,
-                        hashRing,
+                        RedisKeyConstant.CONSISTENT_HASH_RING,
+                        JSONObject.toJSONString(hashRing),
                         REDIS_CACHE_EXPIRE_MINUTES,
                         TimeUnit.MINUTES
                 );
@@ -142,7 +143,7 @@ public class ConsistentHashUtil {
      */
     public void clearCache() {
         log.info("清理哈希环缓存数据");
-        Set<String> keys = redisTemplate.keys(REDIS_CACHE_KEY);
+        Set<String> keys = redisTemplate.keys(RedisKeyConstant.CONSISTENT_HASH_RING);
         if (!keys.isEmpty()) {
             redisTemplate.delete(keys);
         }

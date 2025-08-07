@@ -2,7 +2,7 @@ package com.lyl.ws.handler;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.lyl.domain.dto.MessageDTO;
-import com.lyl.ws.constant.ChannelAttributeKeyConstant;
+import com.lyl.constant.ChannelAttributeKeyConstant;
 import com.lyl.ws.utils.LocalChannelStoreUtil;
 import com.lyl.ws.utils.MessageSendUtil;
 import io.netty.channel.ChannelHandler;
@@ -30,7 +30,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame frame) {
         if (Objects.nonNull(frame)) {
             String msg = frame.text();
-            log.info("Received message: {}", msg);
+            log.info("接收到消息: {}", msg.replaceAll("\\s+", ""));
             MessageDTO messageDTO = JSONObject.parseObject(msg, MessageDTO.class);
             if (Objects.isNull(messageDTO) || Objects.isNull(messageDTO.getReceiverId())) {
                 log.error("Received invalid message: {}", msg);

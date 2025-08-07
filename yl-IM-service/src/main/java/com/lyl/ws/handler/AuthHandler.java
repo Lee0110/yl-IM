@@ -1,6 +1,6 @@
 package com.lyl.ws.handler;
 
-import com.lyl.ws.constant.ChannelAttributeKeyConstant;
+import com.lyl.constant.ChannelAttributeKeyConstant;
 import com.lyl.ws.utils.LocalChannelStoreUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
