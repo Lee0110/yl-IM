@@ -20,14 +20,11 @@ spring:
       routes:
         # WebSocket 路由配置 - 处理 /ws 请求
         - id: yl-im-websocket
-          uri: lb:ws://yl-im-netty
+          uri: no://op
           predicates:
             - Path=/ws/**
           filters:
             - name: ConsistentHashLoadBalancerFilter
-              args:
-                serviceName: yl-im-netty
-                userIdParam: userId
             - StripPrefix=0  # WebSocket 路径不需要去除前缀
         # 普通 HTTP 请求路由配置
         - id: yl-im-server
@@ -39,3 +36,6 @@ spring:
   redis:
     host: localhost
     port: 6379
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
