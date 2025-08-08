@@ -31,7 +31,7 @@ public class ConsistentHashUtil {
     @Value("${yl_IM.netty.server.name}")
     private String nettyServerName;
 
-    // 虚拟节点数量 - 派蒙调优的黄金比例
+    // 虚拟节点数量 - 用于负载均衡
     private static final int VIRTUAL_NODES = 160;
 
     // Redis缓存过期时间（分钟）

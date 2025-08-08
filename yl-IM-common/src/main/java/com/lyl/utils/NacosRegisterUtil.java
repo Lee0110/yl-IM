@@ -1,19 +1,15 @@
-package com.lyl.ws.utils;
+package com.lyl.utils;
 
-import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
-import com.lyl.utils.ConsistentHashUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Properties;
 
 @Slf4j
 @Component
@@ -34,7 +30,7 @@ public class NacosRegisterUtil {
             instance.setIp(ip);
             instance.setPort(nettyPort);
             namingService.registerInstance(nettyServerName, instance);
-            log.info("[Nacos] 注册服务: {} {}:{}", nettyServerName, ip, nettyPort);
+            log.info("[Nacos] 注册服务成功: {} {}:{}", nettyServerName, ip, nettyPort);
         } catch (NacosException | UnknownHostException e) {
             log.error("[Nacos] 注册服务失败: {}", e.getMessage());
         }
@@ -44,7 +40,7 @@ public class NacosRegisterUtil {
         try {
             String ip = InetAddress.getLocalHost().getHostAddress();
             namingService.deregisterInstance(nettyServerName, ip, nettyPort);
-            log.info("[Nacos] 注销服务: {} {}:{}", nettyServerName, ip, nettyPort);
+            log.info("[Nacos] 注销服务成功: {} {}:{}", nettyServerName, ip, nettyPort);
         } catch (NacosException | UnknownHostException e) {
             log.error("[Nacos] 注销服务失败: {}", e.getMessage());
         }

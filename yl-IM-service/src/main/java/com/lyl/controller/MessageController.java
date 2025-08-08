@@ -1,7 +1,7 @@
 package com.lyl.controller;
 
 import com.lyl.domain.dto.MessageDTO;
-import com.lyl.ws.utils.MessageSendUtil;
+import com.lyl.service.message.IMessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,11 +16,11 @@ import javax.annotation.Resource;
 public class MessageController {
 
     @Resource
-    private MessageSendUtil messageSendUtil;
+    private IMessageService messageService;
 
     @PostMapping("send")
     public boolean sendMessage(@RequestBody MessageDTO messageDTO) {
         log.info("接口收到消息发送请求: {}", messageDTO);
-        return messageSendUtil.sendMessageToLocalUser(messageDTO);
+        return messageService.sendMessageToLocalUser(messageDTO);
     }
 }

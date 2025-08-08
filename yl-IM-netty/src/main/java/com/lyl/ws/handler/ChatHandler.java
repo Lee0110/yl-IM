@@ -1,10 +1,10 @@
 package com.lyl.ws.handler;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.lyl.domain.dto.MessageDTO;
 import com.lyl.constant.ChannelAttributeKeyConstant;
-import com.lyl.ws.utils.LocalChannelStoreUtil;
-import com.lyl.ws.utils.MessageSendUtil;
+import com.lyl.domain.dto.MessageDTO;
+import com.lyl.service.message.IMessageService;
+import com.lyl.utils.LocalChannelStoreUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -24,7 +24,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
     private LocalChannelStoreUtil localChannelStoreUtil;
 
     @Resource
-    private MessageSendUtil messageSendUtil;
+    private IMessageService messageService;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame frame) {
@@ -36,7 +36,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
                 log.error("Received invalid message: {}", msg);
                 return;
             }
-            messageSendUtil.sendMessageToUser(messageDTO);
+            messageService.sendMessageToUser(messageDTO);
         }
     }
 

@@ -1,6 +1,7 @@
 yl_IM:
   netty:
     server:
+      port: 9081
       name: yl-im-netty
 server:
   port: 10001
@@ -36,6 +37,3 @@ spring:
   redis:
     host: localhost
     port: 6379
-logging:
-  level:
-    org.springframework.cloud.gateway: DEBUG

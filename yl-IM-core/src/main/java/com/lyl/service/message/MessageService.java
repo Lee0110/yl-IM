@@ -1,40 +1,42 @@
-package com.lyl.ws.utils;
+package com.lyl.service.message;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.lyl.constant.RedisKeyConstant;
 import com.lyl.domain.dto.MessageDTO;
 import com.lyl.utils.ConsistentHashUtil;
-import com.lyl.constant.RedisKeyConstant;
-import com.lyl.ws.service.RemoteMessageService;
+import com.lyl.utils.LocalChannelStoreUtil;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
 
 import javax.annotation.Resource;
 import java.util.Objects;
 
-@Component
+@Service
 @Slf4j
-public class MessageSendUtil {
+public class MessageService implements IMessageService {
+
     @Resource
-    private LocalChannelStoreUtil localChannelStoreUtil;
+    private RestTemplate restTemplate;
+
+    @Resource
+    private RedisTemplate<String, String> redisTemplate;
 
     @Resource
     private ConsistentHashUtil consistentHashUtil;
 
     @Resource
-    private RemoteMessageService remoteMessageService;
+    private LocalChannelStoreUtil localChannelStoreUtil;
 
-    @Resource
-    private RedisTemplate<String, String> redisTemplate;
-
-    /**
-     * 发送消息给指定用户（本机 -> 一致性哈希选择服务器 -> 广播）
-     *
-     * @param messageDTO 消息内容
-     */
+    @Override
     public void sendMessageToUser(MessageDTO messageDTO) {
         if (Objects.isNull(messageDTO) || Objects.isNull(messageDTO.getReceiverId())) {
             log.error("Invalid messageDTO: null or receiverId is null");
@@ -56,12 +58,7 @@ public class MessageSendUtil {
         broadcastMessage(messageDTO);
     }
 
-    /**
-     * 发送消息到选定的服务器，通过一致性哈希算法选择服务器
-     *
-     * @param messageDTO 消息内容
-     * @return 是否发送成功
-     */
+    @Override
     public boolean sendMessageToSelectedServer(MessageDTO messageDTO) {
         if (Objects.isNull(messageDTO) || Objects.isNull(messageDTO.getReceiverId())) {
             log.error("Invalid messageDTO: null or receiverId is null");
@@ -77,14 +74,30 @@ public class MessageSendUtil {
             return false;
         }
         log.info("发送消息到其他实例 {}: {}", serverIpPort, JSONObject.toJSONString(messageDTO));
-        return remoteMessageService.sendMessageToRemoteServer(serverIpPort, messageDTO);
+        return sendMessageToRemoteServer(serverIpPort, messageDTO);
     }
 
-    /**
-     * 广播消息给所有服务实例
-     *
-     * @param messageDTO 消息内容
-     */
+    @Override
+    public boolean sendMessageToRemoteServer(String serverIpPort, MessageDTO messageDTO) {
+        try {
+            String url = "http://" + serverIpPort + "/message/send";
+            log.info("准备发送远程消息，URL: {}", url);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<MessageDTO> request = new HttpEntity<>(messageDTO, headers);
+
+            Boolean response = restTemplate.postForObject(url, request, Boolean.class);
+            log.info("远程消息转发成功，服务器: {}，响应: {}", serverIpPort, response);
+            return Boolean.TRUE.equals(response);
+        } catch (Exception e) {
+            log.error("远程消息转发失败，服务器: {}，错误: {}", serverIpPort, e.getMessage(), e);
+            return false;
+        }
+    }
+
+    @Override
     public void broadcastMessage(MessageDTO messageDTO) {
         if (Objects.isNull(messageDTO) || Objects.isNull(messageDTO.getReceiverId())) {
             log.error("Invalid messageDTO: null or receiverId is null");
@@ -94,11 +107,7 @@ public class MessageSendUtil {
         redisTemplate.convertAndSend(RedisKeyConstant.MESSAGE_BROADCAST_CHANNEL, JSONObject.toJSONString(messageDTO));
     }
 
-    /**
-     * 发送消息到本机连接的用户
-     *
-     * @param messageDTO 消息内容
-     */
+    @Override
     public boolean sendMessageToLocalUser(MessageDTO messageDTO) {
         if (Objects.isNull(messageDTO) || Objects.isNull(messageDTO.getReceiverId())) {
             log.error("Invalid messageDTO: null or receiverId is null");

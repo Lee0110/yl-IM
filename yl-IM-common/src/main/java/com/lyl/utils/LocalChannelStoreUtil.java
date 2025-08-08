@@ -1,4 +1,4 @@
-package com.lyl.ws.utils;
+package com.lyl.utils;
 
 import io.netty.channel.Channel;
 import org.springframework.stereotype.Component;

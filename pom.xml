@@ -20,6 +20,7 @@
         <module>yl-IM-core</module>
         <module>yl-IM-service</module>
         <module>yl-IM-gateway</module>
+        <module>yl-IM-netty</module>
     </modules>
 
     <properties>

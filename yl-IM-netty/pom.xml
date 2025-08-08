@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>yl-IM-service</artifactId>
+    <artifactId>yl-IM-netty</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -25,14 +25,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.lyl</groupId>
-            <artifactId>yl-IM-netty</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
         </dependency>
     </dependencies>
 </project>

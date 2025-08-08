@@ -23,7 +23,7 @@ public class WebSocketServerInitializer extends ChannelInitializer<SocketChannel
     private AuthHandler authHandler;
 
     @Override
-    protected void initChannel(SocketChannel ch) throws Exception {
+    protected void initChannel(SocketChannel ch) {
         ChannelPipeline pipeline = ch.pipeline();
 
         // websocket基于http协议,需要http编码和解码工具

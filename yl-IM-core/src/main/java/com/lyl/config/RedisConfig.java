@@ -1,9 +1,9 @@
-package com.lyl.ws.config;
+package com.lyl.config;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.lyl.domain.dto.MessageDTO;
 import com.lyl.constant.RedisKeyConstant;
-import com.lyl.ws.utils.MessageSendUtil;
+import com.lyl.domain.dto.MessageDTO;
+import com.lyl.service.message.IMessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +22,7 @@ public class RedisConfig {
 
     @Resource
     @Lazy
-    private MessageSendUtil messageSendUtil;
+    private IMessageService messageService;
 
     @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory connectionFactory) {
@@ -34,7 +34,7 @@ public class RedisConfig {
                     try {
                         MessageDTO messageDTO = JSONObject.parseObject(messageContent, MessageDTO.class);
                         // 尝试向本机连接的用户发送消息
-                        messageSendUtil.sendMessageToLocalUser(messageDTO);
+                        messageService.sendMessageToLocalUser(messageDTO);
                     } catch (Exception e) {
                         log.error("处理广播消息异常", e);
                     }
