@@ -6,7 +6,7 @@ import com.lyl.domain.po.Test;
 import com.lyl.domain.vo.TestVO;
 import com.lyl.exception.OcsException;
 import com.lyl.mapper.TestMapper;
-import com.lyl.utils.BeanConverter;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -24,7 +24,8 @@ public class TestServiceImpl extends ServiceImpl<TestMapper, Test> implements IT
 
     @Override
     public void add(TestDTO testDTO) {
-        Test test = BeanConverter.convert(testDTO, Test.class);
+        Test test = new Test();
+        BeanUtils.copyProperties(testDTO, test);
         save(test);
     }
 
@@ -34,6 +35,8 @@ public class TestServiceImpl extends ServiceImpl<TestMapper, Test> implements IT
         if (Objects.isNull(test)) {
             throw new OcsException("不存在，id：" + id);
         }
-        return BeanConverter.convertWithEnum(test, TestVO.class);
+        TestVO testVO = new TestVO();
+        BeanUtils.copyProperties(test, testVO);
+        return testVO;
     }
 }

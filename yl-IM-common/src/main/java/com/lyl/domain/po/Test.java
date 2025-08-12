@@ -2,6 +2,7 @@ package com.lyl.domain.po;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.lyl.enums.TestTypeEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -24,5 +25,5 @@ public class Test extends BasePO {
     private Integer age;
 
     @TableField("type")
-    private Integer type;
+    private TestTypeEnum type;
 }

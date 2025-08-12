@@ -56,11 +56,22 @@ public class RequestResponseLogInterceptor implements HandlerInterceptor {
 
                     try {
                         // 使用包装请求以允许多次读取请求体
-                        CachedBodyHttpServletRequest cachedBodyRequest = new CachedBodyHttpServletRequest(request);
+                        CachedBodyHttpServletRequest cachedBodyRequest;
+
+                        // 检查请求是否已经被包装
+                        if (request instanceof CachedBodyHttpServletRequest) {
+                            cachedBodyRequest = (CachedBodyHttpServletRequest) request;
+                        } else {
+                            cachedBodyRequest = new CachedBodyHttpServletRequest(request);
+                            // 这里不需要重新赋值给request变量，而是直接传递包装后的请求
+                        }
+
                         String requestBody = StreamUtils.copyToString(cachedBodyRequest.getInputStream(), StandardCharsets.UTF_8);
-                        // 将原始请求替换为可重复读取的请求
-                        request = cachedBodyRequest;
                         log.info("请求体: {}", requestBody);
+
+                        // 将包装后的请求设置为请求属性，以便后续可以获取
+                        request.setAttribute("cachedBodyRequest", cachedBodyRequest);
+
                     } catch (Exception e) {
                         log.warn("无法读取请求体: {}", e.getMessage());
                     }
