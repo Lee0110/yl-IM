@@ -2,6 +2,7 @@ package com.lyl.service.message;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.lyl.constant.RedisKeyConstant;
+import com.lyl.domain.Result;
 import com.lyl.domain.dto.MessageDTO;
 import com.lyl.utils.ConsistentHashUtil;
 import com.lyl.utils.LocalChannelStoreUtil;
@@ -88,9 +89,12 @@ public class MessageService implements IMessageService {
 
             HttpEntity<MessageDTO> request = new HttpEntity<>(messageDTO, headers);
 
-            Boolean response = restTemplate.postForObject(url, request, Boolean.class);
+            Result<?> response = restTemplate.postForObject(url, request, Result.class);
             log.info("远程消息转发成功，服务器: {}，响应: {}", serverIpPort, response);
-            return Boolean.TRUE.equals(response);
+            if (Objects.isNull(response)) {
+                return false;
+            }
+            return Boolean.TRUE.equals(response.getData());
         } catch (Exception e) {
             log.error("远程消息转发失败，服务器: {}，错误: {}", serverIpPort, e.getMessage(), e);
             return false;
