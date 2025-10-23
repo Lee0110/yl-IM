@@ -30,8 +30,8 @@ public class RequestBodyCacheFilter extends OncePerRequestFilter {
         if (("POST".equals(method) || "PUT".equals(method) || "PATCH".equals(method))
                 && request.getContentType() != null
                 && (request.getContentType().contains("application/json")
-                    || request.getContentType().contains("application/xml")
-                    || request.getContentType().contains("text/plain"))) {
+                || request.getContentType().contains("application/xml")
+                || request.getContentType().contains("text/plain"))) {
 
             // 包装请求
             CachedBodyHttpServletRequest cachedBodyRequest = new CachedBodyHttpServletRequest(request);

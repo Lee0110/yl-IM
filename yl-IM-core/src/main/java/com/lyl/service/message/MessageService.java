@@ -17,7 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-
 import javax.annotation.Resource;
 import java.util.Objects;
 

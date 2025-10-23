@@ -22,7 +22,7 @@ public interface IMessageService {
      * 通过HTTP调用远程服务发送消息
      *
      * @param serverIpPort 目标服务器ID (IP:端口)
-     * @param messageDTO 消息内容
+     * @param messageDTO   消息内容
      * @return 是否发送成功
      */
     boolean sendMessageToRemoteServer(String serverIpPort, MessageDTO messageDTO);

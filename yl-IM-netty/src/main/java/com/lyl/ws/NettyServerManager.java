@@ -1,7 +1,7 @@
 package com.lyl.ws;
 
-import com.lyl.ws.handler.WebSocketServerInitializer;
 import com.lyl.utils.NacosRegisterUtil;
+import com.lyl.ws.handler.WebSocketServerInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.nio.NioEventLoopGroup;

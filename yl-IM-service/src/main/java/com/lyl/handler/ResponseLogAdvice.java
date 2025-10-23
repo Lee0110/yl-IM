@@ -35,8 +35,8 @@ public class ResponseLogAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
-                                 Class<? extends HttpMessageConverter<?>> selectedConverterType,
-                                 ServerHttpRequest request, ServerHttpResponse response) {
+                                  Class<? extends HttpMessageConverter<?>> selectedConverterType,
+                                  ServerHttpRequest request, ServerHttpResponse response) {
         // 记录响应体内容
         try {
             String requestPath = request.getURI().getPath();

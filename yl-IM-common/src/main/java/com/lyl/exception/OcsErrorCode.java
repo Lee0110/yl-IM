@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 @Getter
 @AllArgsConstructor
-public enum OcsErrorCode implements IErrorCode{
+public enum OcsErrorCode implements IErrorCode {
     COMMON_ERROR(50000, "通用错误"),
     SYSTEM_ERROR(50001, "系统异常"),
     JSON_PARSE_ERROR(50002, "JSON解析错误"),

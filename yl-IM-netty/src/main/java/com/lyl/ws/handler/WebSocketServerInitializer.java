@@ -32,10 +32,10 @@ public class WebSocketServerInitializer extends ChannelInitializer<SocketChannel
         pipeline.addLast(HandlerNameConstant.CHUNKED_WRITE, new ChunkedWriteHandler());
         // 聚合器，将多个消息转换为单一的FullHttpRequest或FullHttpResponse
         pipeline.addLast(HandlerNameConstant.HTTP_OBJECT_AGGREGATOR, new HttpObjectAggregator(1024 * 64));
-        
+
         // 心跳检测处理器
         pipeline.addLast(HandlerNameConstant.IDLE_STATE, new IdleStateHandler(0, 0, 30)); // 30秒无心跳则断开
-        
+
         // WebSocket协议处理器
         pipeline.addLast(HandlerNameConstant.WEB_SOCKET_PROTOCOL_SERVER,
                 new WebSocketServerProtocolHandler("/ws", null, true, 65536, false, true));
