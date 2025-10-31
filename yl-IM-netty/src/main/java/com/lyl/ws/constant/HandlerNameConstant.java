@@ -1,4 +1,4 @@
-package com.lyl.constant;
+package com.lyl.ws.constant;
 
 public class HandlerNameConstant {
     public final static String HTTP_CODEC = "HttpServerCodec";

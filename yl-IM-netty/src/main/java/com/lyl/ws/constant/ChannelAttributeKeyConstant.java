@@ -1,4 +1,4 @@
-package com.lyl.constant;
+package com.lyl.ws.constant;
 
 import io.netty.util.AttributeKey;
 
