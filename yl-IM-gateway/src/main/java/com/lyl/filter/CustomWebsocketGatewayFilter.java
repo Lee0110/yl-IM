@@ -34,7 +34,7 @@ public class CustomWebsocketGatewayFilter implements GatewayFilter, Ordered {
         }
 
         String selectedServerUrl = consistentHashUtil.selectNettyServer(userId);
-        log.info("一致性哈希选择的服务器: {}", selectedServerUrl);
+        log.info("一致性哈希选择的服务器: {}, 用户id: {}", selectedServerUrl, userId);
 
         if (selectedServerUrl != null) {
             // 获取原始请求的URI和查询参数

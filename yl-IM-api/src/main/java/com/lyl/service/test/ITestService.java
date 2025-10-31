@@ -1,7 +1,7 @@
 package com.lyl.service.test;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.lyl.domain.dto.TestDTO;
+import com.lyl.service.test.dto.TestDTO;
 import com.lyl.domain.po.Test;
 import com.lyl.domain.vo.TestVO;
 

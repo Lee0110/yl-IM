@@ -3,7 +3,7 @@ package com.lyl.service.message;
 import com.alibaba.fastjson2.JSONObject;
 import com.lyl.constant.RedisKeyConstant;
 import com.lyl.domain.Result;
-import com.lyl.domain.dto.MessageDTO;
+import com.lyl.service.message.dto.MessageDTO;
 import com.lyl.utils.ConsistentHashUtil;
 import com.lyl.utils.LocalChannelStoreUtil;
 import io.netty.channel.Channel;

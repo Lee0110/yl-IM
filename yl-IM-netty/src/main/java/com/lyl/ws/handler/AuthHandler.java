@@ -12,28 +12,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @ChannelHandler.Sharable
 @Component
 @Slf4j
 public class AuthHandler extends ChannelInboundHandlerAdapter {
-    private static final Set<Long> authorizedUserIds;
-
-    static {
-        authorizedUserIds = new HashSet<>();
-        authorizedUserIds.add(1001L);
-        authorizedUserIds.add(1002L);
-        authorizedUserIds.add(1003L);
-        authorizedUserIds.add(1004L);
-        authorizedUserIds.add(1005L);
-        authorizedUserIds.add(1006L);
-        authorizedUserIds.add(1007L);
-        authorizedUserIds.add(1008L);
-        authorizedUserIds.add(1009L);
-    }
 
     @Resource
     private LocalChannelStoreUtil localChannelStoreUtil;
@@ -68,9 +52,9 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
             try {
                 Long userId = Long.parseLong(userIdStr);
 
-                // 检查用户ID是否在授权列表中
-                if (!authorizedUserIds.contains(userId)) {
-                    log.warn("Handshake failed: unauthorized userId {}", userId);
+                // 测试阶段，userId只要在1-1000000范围内即视为合法
+                if (userId < 1 || userId > 1000000) {
+                    log.warn("Handshake failed: userId {} is out of valid range", userId);
                     ctx.close();
                     return;
                 }

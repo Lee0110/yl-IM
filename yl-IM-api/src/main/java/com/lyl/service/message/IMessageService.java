@@ -1,6 +1,6 @@
 package com.lyl.service.message;
 
-import com.lyl.domain.dto.MessageDTO;
+import com.lyl.service.message.dto.MessageDTO;
 
 public interface IMessageService {
     /**

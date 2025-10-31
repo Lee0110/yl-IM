@@ -1,6 +1,6 @@
 package com.lyl.controller;
 
-import com.lyl.domain.dto.TestDTO;
+import com.lyl.service.test.dto.TestDTO;
 import com.lyl.domain.vo.TestVO;
 import com.lyl.service.test.ITestService;
 import lombok.extern.slf4j.Slf4j;

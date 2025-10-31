@@ -1,6 +1,6 @@
 package com.lyl.controller;
 
-import com.lyl.domain.dto.MessageDTO;
+import com.lyl.service.message.dto.MessageDTO;
 import com.lyl.service.message.IMessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;

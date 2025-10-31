@@ -1,5 +1,6 @@
-package com.lyl.domain.dto;
+package com.lyl.service.message.dto;
 
+import com.lyl.domain.dto.BaseDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

@@ -2,7 +2,7 @@ package com.lyl.config;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.lyl.constant.RedisKeyConstant;
-import com.lyl.domain.dto.MessageDTO;
+import com.lyl.service.message.dto.MessageDTO;
 import com.lyl.service.message.IMessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;

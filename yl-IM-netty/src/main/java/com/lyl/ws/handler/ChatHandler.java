@@ -2,7 +2,7 @@ package com.lyl.ws.handler;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.lyl.constant.ChannelAttributeKeyConstant;
-import com.lyl.domain.dto.MessageDTO;
+import com.lyl.service.message.dto.MessageDTO;
 import com.lyl.service.message.IMessageService;
 import com.lyl.utils.LocalChannelStoreUtil;
 import io.netty.channel.ChannelHandler;
