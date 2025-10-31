@@ -2,8 +2,8 @@ package com.lyl.service.test;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lyl.service.test.dto.TestDTO;
-import com.lyl.domain.po.Test;
-import com.lyl.domain.vo.TestVO;
+import com.lyl.service.test.po.Test;
+import com.lyl.service.test.vo.TestVO;
 import com.lyl.exception.OcsException;
 import com.lyl.mapper.TestMapper;
 import org.springframework.beans.BeanUtils;

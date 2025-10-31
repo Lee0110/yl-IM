@@ -1,7 +1,8 @@
-package com.lyl.domain.po;
+package com.lyl.service.test.po;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.lyl.domain.po.BasePO;
 import com.lyl.enums.TestTypeEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

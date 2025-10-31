@@ -1,5 +1,6 @@
-package com.lyl.domain.vo;
+package com.lyl.service.test.vo;
 
+import com.lyl.domain.vo.BaseVO;
 import com.lyl.enums.TestTypeEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
