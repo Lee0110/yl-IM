@@ -1,10 +1,12 @@
 package com.lyl.ws.handler;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.lyl.enums.IHandlerKey;
+import com.lyl.service.message.IMessageHandler;
 import com.lyl.ws.constant.ChannelAttributeKeyConstant;
 import com.lyl.service.message.dto.MessageDTO;
 import com.lyl.service.message.IMessageService;
-import com.lyl.utils.LocalChannelStoreUtil;
+import com.lyl.ws.utils.LocalChannelStoreUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -13,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Map;
 import java.util.Objects;
 
 @ChannelHandler.Sharable
@@ -24,25 +27,28 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
     private LocalChannelStoreUtil localChannelStoreUtil;
 
     @Resource
-    private IMessageService messageService;
+    private Map<String, IMessageHandler> messageHandlerMap;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame frame) {
         if (Objects.nonNull(frame)) {
             String msg = frame.text();
-            log.info("接收到消息: {}", msg.replaceAll("\\s+", ""));
+            log.info("接收到消息: {}", msg);
+
             MessageDTO messageDTO = JSONObject.parseObject(msg, MessageDTO.class);
-            if (Objects.isNull(messageDTO) || Objects.isNull(messageDTO.getReceiverId())) {
-                log.error("Received invalid message: {}", msg);
+            if (Objects.isNull(messageDTO) || Objects.isNull(messageDTO.getType())) {
+                log.error("接收到无效消息: {}", msg);
                 return;
             }
-            messageService.sendMessageToUser(messageDTO);
+
+            IMessageHandler handler = IHandlerKey.getHandler(messageDTO.getType(), messageHandlerMap);
+            handler.handleMessage(messageDTO);
         }
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        log.info("WebSocket连接建立, 接下来开始认证, channel ID: {}", ctx.channel().id());
+        log.info("WebSocket连接建立, channel ID: {}", ctx.channel().id());
     }
 
     @Override

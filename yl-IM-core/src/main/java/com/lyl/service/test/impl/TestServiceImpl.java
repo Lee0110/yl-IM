@@ -1,11 +1,12 @@
-package com.lyl.service.test;
+package com.lyl.service.test.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lyl.service.test.ITestService;
 import com.lyl.service.test.dto.TestDTO;
 import com.lyl.service.test.po.Test;
 import com.lyl.service.test.vo.TestVO;
 import com.lyl.exception.OcsException;
-import com.lyl.mapper.TestMapper;
+import com.lyl.service.test.mapper.TestMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 

@@ -20,7 +20,6 @@ public class MessageController {
 
     @PostMapping("send")
     public boolean sendMessage(@RequestBody MessageDTO messageDTO) {
-        log.info("接口收到消息发送请求: {}", messageDTO);
         return messageService.sendMessageToLocalUser(messageDTO);
     }
 }

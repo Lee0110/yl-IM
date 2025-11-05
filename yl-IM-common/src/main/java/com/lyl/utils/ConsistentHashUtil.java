@@ -3,14 +3,12 @@ package com.lyl.utils;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
 import com.lyl.constant.RedisKeyConstant;
+import com.lyl.exception.OcsException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -18,24 +16,43 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-@Component
 @Slf4j
 public class ConsistentHashUtil {
 
-    @Resource
-    private RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
-    @Resource
-    private DiscoveryClient discoveryClient;
+    private final DiscoveryClient discoveryClient;
 
-    @Value("${yl_IM.netty.server.name}")
-    private String nettyServerName;
+    /**
+     * netty服务名称
+     */
+    private final String nettyServerName;
 
-    // 虚拟节点数量 - 用于负载均衡
-    private static final int VIRTUAL_NODES = 160;
+    /**
+     * 虚拟节点数量 - 用于负载均衡
+     */
+    private final int virtualNodes;
 
-    // Redis缓存过期时间（分钟）
-    private static final int REDIS_CACHE_EXPIRE_MINUTES = 10;
+    /**
+     * Redis缓存过期时间（分钟）
+     */
+    private final int redisCacheExpireMinutes;
+
+    public ConsistentHashUtil(String nettyServerName, DiscoveryClient discoveryClient, RedisTemplate<String, String> redisTemplate) {
+        this.nettyServerName = nettyServerName;
+        this.discoveryClient = discoveryClient;
+        this.redisTemplate = redisTemplate;
+        this.virtualNodes = 160;
+        this.redisCacheExpireMinutes = 10;
+    }
+
+    public ConsistentHashUtil(RedisTemplate<String, String> redisTemplate, DiscoveryClient discoveryClient, String nettyServerName, int virtualNodes, int redisCacheExpireMinutes) {
+        this.redisTemplate = redisTemplate;
+        this.discoveryClient = discoveryClient;
+        this.nettyServerName = nettyServerName;
+        this.virtualNodes = virtualNodes;
+        this.redisCacheExpireMinutes = redisCacheExpireMinutes;
+    }
 
     /**
      * 根据用户ID获取对应的netty服务实例
@@ -64,7 +81,7 @@ public class ConsistentHashUtil {
             List<ServiceInstance> serviceInstanceList = discoveryClient.getInstances(nettyServerName);
             if (serviceInstanceList == null || serviceInstanceList.isEmpty()) {
                 // 如果没有可用服务实例，抛出异常
-                throw new RuntimeException("没有可用的服务实例：" + nettyServerName);
+                throw new OcsException("没有可用的服务实例：" + nettyServerName);
             }
 
             // 使用一致性哈希选择服务器
@@ -80,7 +97,7 @@ public class ConsistentHashUtil {
                 redisTemplate.opsForValue().set(
                         RedisKeyConstant.CONSISTENT_HASH_RING,
                         JSONObject.toJSONString(hashRing),
-                        REDIS_CACHE_EXPIRE_MINUTES,
+                        redisCacheExpireMinutes,
                         TimeUnit.MINUTES
                 );
             } catch (Exception e) {
@@ -128,7 +145,7 @@ public class ConsistentHashUtil {
 
         for (String instance : instances) {
             // 为每个实例添加虚拟节点
-            for (int i = 0; i < VIRTUAL_NODES; i++) {
+            for (int i = 0; i < virtualNodes; i++) {
                 String virtualNode = instance + "#" + i;
                 long hash = hash(virtualNode);
                 hashRing.put(hash, instance);
@@ -142,9 +159,9 @@ public class ConsistentHashUtil {
      * 手动清理缓存
      */
     public void clearCache() {
-        log.info("清理哈希环缓存数据");
         Set<String> keys = redisTemplate.keys(RedisKeyConstant.CONSISTENT_HASH_RING);
         if (!keys.isEmpty()) {
+            log.info("清理哈希环缓存数据");
             redisTemplate.delete(keys);
         }
     }
@@ -157,7 +174,7 @@ public class ConsistentHashUtil {
         try {
             md5 = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("获取MD5实例失败", e);
+            throw new OcsException("获取MD5实例失败", e);
         }
 
         byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);

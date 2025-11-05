@@ -20,13 +20,38 @@
     <dependencies>
         <dependency>
             <groupId>com.lyl</groupId>
-            <artifactId>yl-IM-core</artifactId>
+            <artifactId>yl-IM-api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-common</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.nacos</groupId>
+            <artifactId>nacos-client</artifactId>
         </dependency>
     </dependencies>
 </project>

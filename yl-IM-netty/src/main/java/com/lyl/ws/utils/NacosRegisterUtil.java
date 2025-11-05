@@ -1,4 +1,4 @@
-package com.lyl.utils;
+package com.lyl.ws.utils;
 
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
@@ -30,9 +30,9 @@ public class NacosRegisterUtil {
             instance.setIp(ip);
             instance.setPort(nettyPort);
             namingService.registerInstance(nettyServerName, instance);
-            log.info("[Nacos] 注册服务成功: {} {}:{}", nettyServerName, ip, nettyPort);
+            log.info("nacos register instance success: {} {}:{}", nettyServerName, ip, nettyPort);
         } catch (NacosException | UnknownHostException e) {
-            log.error("[Nacos] 注册服务失败: {}", e.getMessage());
+            log.error("nacos register instance failed", e);
         }
     }
 
@@ -40,9 +40,9 @@ public class NacosRegisterUtil {
         try {
             String ip = InetAddress.getLocalHost().getHostAddress();
             namingService.deregisterInstance(nettyServerName, ip, nettyPort);
-            log.info("[Nacos] 注销服务成功: {} {}:{}", nettyServerName, ip, nettyPort);
+            log.info("nacos deregister instance success: {} {}:{}", nettyServerName, ip, nettyPort);
         } catch (NacosException | UnknownHostException e) {
-            log.error("[Nacos] 注销服务失败: {}", e.getMessage());
+            log.error("nacos deregister instance failed", e);
         }
     }
 }

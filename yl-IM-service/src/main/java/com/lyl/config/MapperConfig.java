@@ -1,9 +1,9 @@
-package com.lyl.config.mybatis_plus;
+package com.lyl.config;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Configuration;
 
-@MapperScan("com.lyl.mapper")
+@MapperScan("com.lyl.service.*.mapper")
 @Configuration
 public class MapperConfig {
 }

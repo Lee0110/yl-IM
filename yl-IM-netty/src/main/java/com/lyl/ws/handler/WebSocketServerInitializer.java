@@ -17,10 +17,16 @@ import javax.annotation.Resource;
 public class WebSocketServerInitializer extends ChannelInitializer<SocketChannel> {
 
     @Resource
+    private HeartBeatHandler heartBeatHandler;
+
+    @Resource
     private ChatHandler chatHandler;
 
     @Resource
     private AuthHandler authHandler;
+
+    @Resource
+    private TraceIdMdcHandler traceIdMdcHandler;
 
     @Override
     protected void initChannel(SocketChannel ch) {
@@ -35,10 +41,14 @@ public class WebSocketServerInitializer extends ChannelInitializer<SocketChannel
 
         // 心跳检测处理器
         pipeline.addLast(HandlerNameConstant.IDLE_STATE, new IdleStateHandler(0, 0, 30)); // 30秒无心跳则断开
+        pipeline.addLast(HandlerNameConstant.HEART_BEAT_HANDLER, heartBeatHandler);
 
         // WebSocket协议处理器
         pipeline.addLast(HandlerNameConstant.WEB_SOCKET_PROTOCOL_SERVER,
                 new WebSocketServerProtocolHandler("/ws", null, true, 65536, false, true));
+
+        // 在业务逻辑前设置/恢复 MDC traceId
+        pipeline.addLast(HandlerNameConstant.TRACE_MDC_HANDLER, traceIdMdcHandler);
 
         // 认证处理器，必须放在业务处理器之前
         pipeline.addLast(HandlerNameConstant.AUTH_HANDLER, authHandler);

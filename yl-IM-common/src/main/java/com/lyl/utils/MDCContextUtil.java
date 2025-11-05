@@ -34,7 +34,7 @@ public class MDCContextUtil {
      * 生成一个新的traceId
      */
     public static String generateTraceId() {
-        return UUID.randomUUID().toString().replace("-", "");
+        return UUID.randomUUID().toString().replace("-", "").substring(6);
     }
 
     /**

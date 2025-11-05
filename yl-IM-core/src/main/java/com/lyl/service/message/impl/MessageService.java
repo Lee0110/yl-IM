@@ -1,11 +1,12 @@
-package com.lyl.service.message;
+package com.lyl.service.message.impl;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.lyl.constant.RedisKeyConstant;
 import com.lyl.domain.Result;
+import com.lyl.service.message.IMessageService;
 import com.lyl.service.message.dto.MessageDTO;
 import com.lyl.utils.ConsistentHashUtil;
-import com.lyl.utils.LocalChannelStoreUtil;
+import com.lyl.ws.utils.LocalChannelStoreUtil;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.extern.slf4j.Slf4j;

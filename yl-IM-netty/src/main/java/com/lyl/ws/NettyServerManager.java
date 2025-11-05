@@ -1,6 +1,6 @@
 package com.lyl.ws;
 
-import com.lyl.utils.NacosRegisterUtil;
+import com.lyl.ws.utils.NacosRegisterUtil;
 import com.lyl.ws.handler.WebSocketServerInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -35,6 +35,7 @@ public class NettyServerManager {
 
     @EventListener(ApplicationReadyEvent.class)
     public void startNettyServer() {
+        log.info("Starting Netty server on port {}", port);
         try {
             channelFuture = bootstrap.group(boss, worker)
                     .channelFactory(NioServerSocketChannel::new)
