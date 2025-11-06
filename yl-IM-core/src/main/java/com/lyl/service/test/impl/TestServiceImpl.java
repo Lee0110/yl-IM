@@ -5,7 +5,7 @@ import com.lyl.service.test.ITestService;
 import com.lyl.service.test.dto.TestDTO;
 import com.lyl.service.test.po.Test;
 import com.lyl.service.test.vo.TestVO;
-import com.lyl.exception.OcsException;
+import com.lyl.exception.IMException;
 import com.lyl.service.test.mapper.TestMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public class TestServiceImpl extends ServiceImpl<TestMapper, Test> implements IT
     public TestVO get(Long id) {
         Test test = getById(id);
         if (Objects.isNull(test)) {
-            throw new OcsException("不存在，id：" + id);
+            throw new IMException("不存在，id：" + id);
         }
         TestVO testVO = new TestVO();
         BeanUtils.copyProperties(test, testVO);

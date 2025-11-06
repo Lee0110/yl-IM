@@ -1,11 +1,11 @@
 package com.lyl.ws.handler;
 
-import com.alibaba.fastjson2.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.lyl.enums.IHandlerKey;
 import com.lyl.service.message.IMessageHandler;
 import com.lyl.ws.constant.ChannelAttributeKeyConstant;
 import com.lyl.service.message.dto.MessageDTO;
-import com.lyl.service.message.IMessageService;
 import com.lyl.ws.utils.LocalChannelStoreUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -29,13 +29,23 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
     @Resource
     private Map<String, IMessageHandler> messageHandlerMap;
 
+    @Resource
+    private ObjectMapper objectMapper;
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame frame) {
         if (Objects.nonNull(frame)) {
             String msg = frame.text();
             log.info("接收到消息: {}", msg);
 
-            MessageDTO messageDTO = JSONObject.parseObject(msg, MessageDTO.class);
+            MessageDTO messageDTO;
+            try {
+                messageDTO = objectMapper.readValue(msg, MessageDTO.class);
+            } catch (JsonProcessingException e) {
+                log.error("消息JSON解析失败: {}", msg, e);
+                return;
+            }
+
             if (Objects.isNull(messageDTO) || Objects.isNull(messageDTO.getType())) {
                 log.error("接收到无效消息: {}", msg);
                 return;

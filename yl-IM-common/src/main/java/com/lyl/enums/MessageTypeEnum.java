@@ -13,7 +13,7 @@ public enum MessageTypeEnum implements IBaseEnum<Integer>, IHandlerKey {
     /**
      * 普通消息
      */
-    NORMAL(1, "文本消息", "textMessageHandler"),
+    TEXT(1, "文本消息", "textMessageHandler"),
 
     /**
      * 系统消息

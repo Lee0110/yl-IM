@@ -1,6 +1,6 @@
 package com.lyl.domain.vo;
 
-import com.lyl.exception.OcsException;
+import com.lyl.exception.IMException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,7 +32,7 @@ public class PageVO<T> implements Serializable {
             return new PageVO<>(Collections.emptyList(), 0);
         }
         if (Objects.isNull(mapper)) {
-            throw new OcsException("转换函数不能为空");
+            throw new IMException("转换函数不能为空");
         }
         List<R> mapped = source.getData().stream().map(mapper).collect(Collectors.toList());
         return new PageVO<>(mapped, source.getTotal());

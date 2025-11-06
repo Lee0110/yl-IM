@@ -1,6 +1,6 @@
 package com.lyl.ws.handler;
 
-import com.alibaba.fastjson2.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lyl.enums.MessageTypeEnum;
 import com.lyl.service.message.dto.MessageDTO;
 import com.lyl.ws.constant.ChannelAttributeKeyConstant;
@@ -14,6 +14,7 @@ import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -23,6 +24,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class HeartBeatHandler extends ChannelInboundHandlerAdapter {
     private static final String PING = "ping";
     private static final String PONG = "pong";
+
+    @Resource
+    private ObjectMapper objectMapper;
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
@@ -74,8 +78,8 @@ public class HeartBeatHandler extends ChannelInboundHandlerAdapter {
                 messageDTO.setType(MessageTypeEnum.SYSTEM);
                 messageDTO.setSenderId(-1L);
                 messageDTO.setReceiverId(ctx.channel().attr(ChannelAttributeKeyConstant.USER_ID_KEY).get());
-                messageDTO.setContent("连接已关闭, 请重新连接");
-                ctx.channel().writeAndFlush(JSONObject.toJSONString(messageDTO));
+                messageDTO.setContent("长时间无响应，已自动关闭");
+                ctx.channel().writeAndFlush(new TextWebSocketFrame(objectMapper.writeValueAsString(messageDTO)));
                 ctx.channel().close();
             }
         }

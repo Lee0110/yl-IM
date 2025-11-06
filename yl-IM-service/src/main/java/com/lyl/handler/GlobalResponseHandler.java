@@ -3,8 +3,8 @@ package com.lyl.handler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lyl.domain.Result;
-import com.lyl.exception.OcsErrorCode;
-import com.lyl.exception.OcsException;
+import com.lyl.exception.IMErrorCode;
+import com.lyl.exception.IMException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -40,7 +40,7 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
                 return objectMapper.writeValueAsString(Result.success(body));
             } catch (JsonProcessingException e) {
                 log.error(e.getMessage(), e);
-                throw new OcsException(OcsErrorCode.JSON_PARSE_ERROR);
+                throw new IMException(IMErrorCode.JSON_PARSE_ERROR);
             }
         }
         return Result.success(body);

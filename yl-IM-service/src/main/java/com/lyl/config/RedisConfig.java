@@ -1,9 +1,11 @@
 package com.lyl.config;
 
-import com.alibaba.fastjson2.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lyl.constant.RedisKeyConstant;
 import com.lyl.service.message.IMessageService;
+import com.lyl.service.message.dto.BroadcastMessageDTO;
 import com.lyl.service.message.dto.MessageDTO;
+import com.lyl.utils.MDCContextUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,15 +26,19 @@ public class RedisConfig {
     @Lazy
     private IMessageService messageService;
 
+    @Resource
+    private ObjectMapper objectMapper;
+
     @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory connectionFactory) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.addMessageListener(((message, pattern) -> {
                     String messageContent = new String(message.getBody());
                     log.info("接收到Redis广播消息: {}", messageContent);
-
                     try {
-                        MessageDTO messageDTO = JSONObject.parseObject(messageContent, MessageDTO.class);
+                        BroadcastMessageDTO messageDTO = objectMapper.readValue(messageContent, BroadcastMessageDTO.class);
+                        MDCContextUtil.setTraceId(messageDTO.getTraceId());
+                        log.info("处理广播消息: {}", messageContent);
                         // 尝试向本机连接的用户发送消息
                         messageService.sendMessageToLocalUser(messageDTO);
                     } catch (Exception e) {

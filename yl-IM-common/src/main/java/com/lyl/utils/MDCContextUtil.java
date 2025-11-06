@@ -16,7 +16,7 @@ public class MDCContextUtil {
     /**
      * traceId在MDC中的key
      */
-    public static final String TRACE_ID_KEY = "TRACE_ID";
+    public static final String TRACE_ID_KEY = "traceId";
 
     /**
      * 获取当前的traceId，如果不存在则创建一个新的
@@ -34,7 +34,7 @@ public class MDCContextUtil {
      * 生成一个新的traceId
      */
     public static String generateTraceId() {
-        return UUID.randomUUID().toString().replace("-", "").substring(6);
+        return UUID.randomUUID().toString().replace("-", "").substring(0, 6);
     }
 
     /**

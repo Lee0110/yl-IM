@@ -1,9 +1,9 @@
 package com.lyl.utils;
 
-import com.alibaba.fastjson2.JSONObject;
-import com.alibaba.fastjson2.TypeReference;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lyl.constant.RedisKeyConstant;
-import com.lyl.exception.OcsException;
+import com.lyl.exception.IMException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -23,6 +23,8 @@ public class ConsistentHashUtil {
 
     private final DiscoveryClient discoveryClient;
 
+    private final ObjectMapper objectMapper;
+
     /**
      * netty服务名称
      */
@@ -38,20 +40,22 @@ public class ConsistentHashUtil {
      */
     private final int redisCacheExpireMinutes;
 
-    public ConsistentHashUtil(String nettyServerName, DiscoveryClient discoveryClient, RedisTemplate<String, String> redisTemplate) {
+    public ConsistentHashUtil(String nettyServerName, DiscoveryClient discoveryClient, RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
         this.nettyServerName = nettyServerName;
         this.discoveryClient = discoveryClient;
         this.redisTemplate = redisTemplate;
         this.virtualNodes = 160;
         this.redisCacheExpireMinutes = 10;
+        this.objectMapper = objectMapper;
     }
 
-    public ConsistentHashUtil(RedisTemplate<String, String> redisTemplate, DiscoveryClient discoveryClient, String nettyServerName, int virtualNodes, int redisCacheExpireMinutes) {
+    public ConsistentHashUtil(RedisTemplate<String, String> redisTemplate, DiscoveryClient discoveryClient, String nettyServerName, int virtualNodes, int redisCacheExpireMinutes, ObjectMapper objectMapper) {
         this.redisTemplate = redisTemplate;
         this.discoveryClient = discoveryClient;
         this.nettyServerName = nettyServerName;
         this.virtualNodes = virtualNodes;
         this.redisCacheExpireMinutes = redisCacheExpireMinutes;
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -69,7 +73,7 @@ public class ConsistentHashUtil {
         String cachedValue = redisTemplate.opsForValue().get(RedisKeyConstant.CONSISTENT_HASH_RING);
         if (cachedValue != null) {
             try {
-                hashRing = JSONObject.parseObject(cachedValue, new TypeReference<SortedMap<Long, String>>() {
+                hashRing = objectMapper.readValue(cachedValue, new TypeReference<SortedMap<Long, String>>() {
                 });
             } catch (Exception e) {
                 log.error("从Redis获取哈希环数据转换失败", e);
@@ -81,7 +85,7 @@ public class ConsistentHashUtil {
             List<ServiceInstance> serviceInstanceList = discoveryClient.getInstances(nettyServerName);
             if (serviceInstanceList == null || serviceInstanceList.isEmpty()) {
                 // 如果没有可用服务实例，抛出异常
-                throw new OcsException("没有可用的服务实例：" + nettyServerName);
+                throw new IMException("没有可用的服务实例：" + nettyServerName);
             }
 
             // 使用一致性哈希选择服务器
@@ -96,7 +100,7 @@ public class ConsistentHashUtil {
             try {
                 redisTemplate.opsForValue().set(
                         RedisKeyConstant.CONSISTENT_HASH_RING,
-                        JSONObject.toJSONString(hashRing),
+                        objectMapper.writeValueAsString(hashRing),
                         redisCacheExpireMinutes,
                         TimeUnit.MINUTES
                 );
@@ -174,7 +178,7 @@ public class ConsistentHashUtil {
         try {
             md5 = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
-            throw new OcsException("获取MD5实例失败", e);
+            throw new IMException("获取MD5实例失败", e);
         }
 
         byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);

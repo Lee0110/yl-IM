@@ -1,7 +1,7 @@
 package com.lyl.handler;
 
 import com.lyl.domain.Result;
-import com.lyl.exception.OcsException;
+import com.lyl.exception.IMException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -29,8 +29,8 @@ public class GlobalExceptionHandler {
     /**
      * 自定义异常
      */
-    @ExceptionHandler(OcsException.class)
-    public Result<?> handleTelesaleException(OcsException e, HttpServletRequest request) {
+    @ExceptionHandler(IMException.class)
+    public Result<?> handleTelesaleException(IMException e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.warn("请求地址'{}',业务异常'{}'", requestURI, e.getMessage());
         return Result.error(e.getErrorCode().getCode(), e.getMessage());

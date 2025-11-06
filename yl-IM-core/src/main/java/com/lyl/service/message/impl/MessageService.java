@@ -1,11 +1,16 @@
 package com.lyl.service.message.impl;
 
-import com.alibaba.fastjson2.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lyl.constant.RedisKeyConstant;
 import com.lyl.domain.Result;
+import com.lyl.exception.IMErrorCode;
+import com.lyl.exception.IMException;
 import com.lyl.service.message.IMessageService;
+import com.lyl.service.message.dto.BroadcastMessageDTO;
 import com.lyl.service.message.dto.MessageDTO;
 import com.lyl.utils.ConsistentHashUtil;
+import com.lyl.utils.MDCContextUtil;
 import com.lyl.ws.utils.LocalChannelStoreUtil;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -36,6 +41,9 @@ public class MessageService implements IMessageService {
 
     @Resource
     private LocalChannelStoreUtil localChannelStoreUtil;
+
+    @Resource
+    private ObjectMapper objectMapper;
 
     @Override
     public void sendMessageToUser(MessageDTO messageDTO) {
@@ -74,7 +82,12 @@ public class MessageService implements IMessageService {
             log.error("Invalid serverIpPort: null or empty");
             return false;
         }
-        log.info("发送消息到其他实例 {}: {}", serverIpPort, JSONObject.toJSONString(messageDTO));
+        try {
+            log.info("发送消息到其他实例 {}: {}", serverIpPort, objectMapper.writeValueAsString(messageDTO));
+        } catch (JsonProcessingException e) {
+            log.error(e.getMessage(), e);
+            throw new IMException(IMErrorCode.JSON_PARSE_ERROR);
+        }
         return sendMessageToRemoteServer(serverIpPort, messageDTO);
     }
 
@@ -107,8 +120,17 @@ public class MessageService implements IMessageService {
             log.error("Invalid messageDTO: null or receiverId is null");
             return;
         }
-        log.info("广播消息给所有服务实例: {}", JSONObject.toJSONString(messageDTO));
-        redisTemplate.convertAndSend(RedisKeyConstant.MESSAGE_BROADCAST_CHANNEL, JSONObject.toJSONString(messageDTO));
+        String jsonString;
+        try {
+            String traceId = MDCContextUtil.getTraceId();
+            BroadcastMessageDTO broadcastMessageDTO = new BroadcastMessageDTO(messageDTO, traceId);
+            jsonString = objectMapper.writeValueAsString(broadcastMessageDTO);
+        } catch (JsonProcessingException e) {
+            log.error(e.getMessage(), e);
+            throw new IMException(IMErrorCode.JSON_PARSE_ERROR);
+        }
+        log.info("广播消息给所有服务实例: {}", jsonString);
+        redisTemplate.convertAndSend(RedisKeyConstant.MESSAGE_BROADCAST_CHANNEL, jsonString);
     }
 
     @Override
@@ -123,7 +145,13 @@ public class MessageService implements IMessageService {
             log.info("该实例没有连接的用户: {}", userId);
             return false;
         }
-        String jsonString = JSONObject.toJSONString(messageDTO);
+        String jsonString;
+        try {
+            jsonString = objectMapper.writeValueAsString(messageDTO);
+        } catch (JsonProcessingException e) {
+            log.error(e.getMessage(), e);
+            throw new IMException(IMErrorCode.JSON_PARSE_ERROR);
+        }
         channel.writeAndFlush(new TextWebSocketFrame(jsonString));
         log.info("本地发送消息给用户 {}：{}", userId, jsonString);
         return true;

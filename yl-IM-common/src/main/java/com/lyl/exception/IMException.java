@@ -5,41 +5,41 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class OcsException extends RuntimeException {
+public class IMException extends RuntimeException {
     private final IErrorCode errorCode;
 
-    public OcsException(String message) {
+    public IMException(String message) {
         super(message);
-        this.errorCode = OcsErrorCode.COMMON_ERROR;
+        this.errorCode = IMErrorCode.COMMON_ERROR;
     }
 
 
-    public OcsException(String message, Throwable cause) {
+    public IMException(String message, Throwable cause) {
         super(message, cause);
-        this.errorCode = OcsErrorCode.COMMON_ERROR;
+        this.errorCode = IMErrorCode.COMMON_ERROR;
     }
 
-    public OcsException(IErrorCode errorCode) {
+    public IMException(IErrorCode errorCode) {
         super(errorCode.getErrorMsg());
         this.errorCode = errorCode;
     }
 
-    public OcsException(IErrorCode errorCode, Throwable cause) {
+    public IMException(IErrorCode errorCode, Throwable cause) {
         super(errorCode.getErrorMsg(), cause);
         this.errorCode = errorCode;
     }
 
-    public OcsException(String message, IErrorCode errorCode) {
+    public IMException(String message, IErrorCode errorCode) {
         super(message);
         this.errorCode = errorCode;
     }
 
-    public OcsException(IErrorCode errorCode, Object... args) {
+    public IMException(IErrorCode errorCode, Object... args) {
         super(String.format(errorCode.getErrorMsg(), args));
         this.errorCode = errorCode;
     }
 
-    public OcsException(IErrorCode errorCode, String message, Throwable cause) {
+    public IMException(IErrorCode errorCode, String message, Throwable cause) {
         super(message, cause);
         this.errorCode = errorCode;
     }

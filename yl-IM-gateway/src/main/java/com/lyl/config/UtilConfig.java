@@ -1,5 +1,6 @@
 package com.lyl.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lyl.utils.ConsistentHashUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -14,7 +15,9 @@ public class UtilConfig {
     private String nettyServerName;
 
     @Bean
-    public ConsistentHashUtil consistentHashUtil(RedisTemplate<String, String> redisTemplate, DiscoveryClient discoveryClient) {
-        return new ConsistentHashUtil(nettyServerName, discoveryClient, redisTemplate);
+    public ConsistentHashUtil consistentHashUtil(RedisTemplate<String, String> redisTemplate,
+                                                 DiscoveryClient discoveryClient,
+                                                 ObjectMapper objectMapper) {
+        return new ConsistentHashUtil(nettyServerName, discoveryClient, redisTemplate, objectMapper);
     }
 }
