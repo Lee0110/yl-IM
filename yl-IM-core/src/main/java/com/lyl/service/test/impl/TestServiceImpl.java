@@ -1,0 +1,35 @@
+package com.lyl.service.test.impl;
+
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lyl.service.test.ITestService;
+import com.lyl.service.test.dto.TestDTO;
+import com.lyl.service.test.po.Test;
+import com.lyl.service.test.vo.TestVO;
+import com.lyl.exception.IMException;
+import com.lyl.service.test.mapper.TestMapper;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.Objects;
+
+@Service
+public class TestServiceImpl extends ServiceImpl<TestMapper, Test> implements ITestService {
+
+    @Override
+    public void add(TestDTO testDTO) {
+        Test test = new Test();
+        BeanUtils.copyProperties(testDTO, test);
+        save(test);
+    }
+
+    @Override
+    public TestVO get(Long id) {
+        Test test = getById(id);
+        if (Objects.isNull(test)) {
+            throw new IMException("不存在，id：" + id);
+        }
+        TestVO testVO = new TestVO();
+        BeanUtils.copyProperties(test, testVO);
+        return testVO;
+    }
+}
