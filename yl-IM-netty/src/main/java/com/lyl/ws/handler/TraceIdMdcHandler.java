@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 /**
- * 在 Netty 处理链上为每条入站消息设置 MDC traceId，并在处理后恢复。
+ * 在 Netty 处理链上为每条入站消息设置 MDC traceId, 并在处理后恢复。
  */
 @ChannelHandler.Sharable
 @Component

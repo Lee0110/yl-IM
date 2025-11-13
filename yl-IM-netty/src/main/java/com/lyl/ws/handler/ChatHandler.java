@@ -11,6 +11,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -57,18 +58,26 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) {
-        log.info("WebSocket连接建立, channel ID: {}", ctx.channel().id());
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof WebSocketServerProtocolHandler.HandshakeComplete) {
+            Long userId = ctx.channel().attr(ChannelAttributeKeyConstant.USER_ID_KEY).get();
+            if (userId != null) {
+                log.info("WebSocket握手成功, 用户:{}, channel ID: {}", userId, ctx.channel().id());
+            } else {
+                log.info("WebSocket握手成功, 未取到用户ID, channel ID: {}", ctx.channel().id());
+            }
+        }
+        super.userEventTriggered(ctx, evt);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Long userId = ctx.channel().attr(ChannelAttributeKeyConstant.USER_ID_KEY).get();
         if (userId != null) {
-            log.info("用户 {} 断开连接，移除Channel: {}", userId, ctx.channel().id());
+            log.info("用户 {} 断开连接, 移除Channel: {}", userId, ctx.channel().id());
             localChannelStoreUtil.removeChannel(userId);
         } else {
-            log.warn("Channel断开连接，但无法获取用户ID: {}", ctx.channel().id());
+            log.warn("Channel断开连接, 但无法获取用户ID: {}", ctx.channel().id());
         }
         super.channelInactive(ctx);
     }
@@ -78,10 +87,10 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         log.error("WebSocket连接异常: ", cause);
         Long userId = ctx.channel().attr(ChannelAttributeKeyConstant.USER_ID_KEY).get();
         if (userId != null) {
-            log.info("用户 {} 异常断开连接，移除Channel: {}", userId, ctx.channel().id());
+            log.info("用户 {} 异常断开连接, 移除Channel: {}", userId, ctx.channel().id());
             localChannelStoreUtil.removeChannel(userId);
         } else {
-            log.warn("Channel异常断开连接，但无法获取用户ID: {}", ctx.channel().id());
+            log.warn("Channel异常断开连接, 但无法获取用户ID: {}", ctx.channel().id());
         }
         ctx.close();
     }

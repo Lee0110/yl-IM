@@ -7,6 +7,9 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.RouteToRequestUrlFilter;
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.core.Ordered;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -14,6 +17,7 @@ import reactor.core.publisher.Mono;
 
 import javax.annotation.Resource;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Component
@@ -29,8 +33,32 @@ public class CustomWebsocketGatewayFilter implements GatewayFilter, Ordered {
         // 从请求中获取用户ID
         String userId = extractUserId(exchange.getRequest());
         if (userId == null || userId.isEmpty()) {
-            // 如果没有用户ID，抛出异常
-            return Mono.error(new RuntimeException("未能获取用户ID，无法进行路由"));
+            log.warn("缺少 userId 参数");
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            byte[] bytes = "缺少 userId 参数".getBytes(StandardCharsets.UTF_8);
+            DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
+            exchange.getResponse().getHeaders().set(HttpHeaders.CONTENT_TYPE, "text/plain;charset=UTF-8");
+            return exchange.getResponse().writeWith(Mono.just(buffer));
+        }
+
+        // 简单校验与后端保持一致：1..1_000_000 视为合法
+        try {
+            long uid = Long.parseLong(userId);
+            if (uid < 1 || uid > 1_000_000) {
+                log.warn("非法的userId: {}", userId);
+                exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+                byte[] bytes = "userId 非法，拒绝握手".getBytes(StandardCharsets.UTF_8);
+                DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
+                exchange.getResponse().getHeaders().set(HttpHeaders.CONTENT_TYPE, "text/plain;charset=UTF-8");
+                return exchange.getResponse().writeWith(Mono.just(buffer));
+            }
+        } catch (NumberFormatException e) {
+            log.warn("userId 格式错误: {}", userId);
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            byte[] bytes = "userId 格式错误".getBytes(StandardCharsets.UTF_8);
+            DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
+            exchange.getResponse().getHeaders().set(HttpHeaders.CONTENT_TYPE, "text/plain;charset=UTF-8");
+            return exchange.getResponse().writeWith(Mono.just(buffer));
         }
 
         String selectedServerUrl = consistentHashUtil.selectNettyServer(userId);

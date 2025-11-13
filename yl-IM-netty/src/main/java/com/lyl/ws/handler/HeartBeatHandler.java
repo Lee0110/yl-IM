@@ -41,6 +41,9 @@ public class HeartBeatHandler extends ChannelInboundHandlerAdapter {
             String data = ((TextWebSocketFrame) msg).text();
             if (PING.equals(data)) {
                 try {
+                    if (!ctx.channel().isActive() || !ctx.channel().isOpen()) {
+                        return;
+                    }
                     // 回复pong
                     ctx.writeAndFlush(new TextWebSocketFrame(PONG));
 
@@ -74,12 +77,20 @@ public class HeartBeatHandler extends ChannelInboundHandlerAdapter {
             IdleStateEvent event = (IdleStateEvent) evt;
             if (event.state() == IdleState.ALL_IDLE) {
                 log.debug("连接长时间无活动, 关闭连接, channelId={}", ctx.channel().id().asShortText());
+                if (!ctx.channel().isActive() || !ctx.channel().isOpen()) {
+                    ctx.close();
+                    return;
+                }
                 MessageDTO messageDTO = new MessageDTO();
                 messageDTO.setType(MessageTypeEnum.SYSTEM);
                 messageDTO.setSenderId(-1L);
                 messageDTO.setReceiverId(ctx.channel().attr(ChannelAttributeKeyConstant.USER_ID_KEY).get());
-                messageDTO.setContent("长时间无响应，已自动关闭");
-                ctx.channel().writeAndFlush(new TextWebSocketFrame(objectMapper.writeValueAsString(messageDTO)));
+                messageDTO.setContent("长时间无响应, 已自动关闭");
+                try {
+                    ctx.channel().writeAndFlush(new TextWebSocketFrame(objectMapper.writeValueAsString(messageDTO)));
+                } catch (Exception e) {
+                    log.debug("关闭前写入提示失败(可能已关闭), channelId={}", ctx.channel().id().asShortText());
+                }
                 ctx.channel().close();
             }
         }
